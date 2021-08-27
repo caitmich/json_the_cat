@@ -1,13 +1,26 @@
 const request = require('request');
-const args = process.argv;
 
-let url = ('https://api.thecatapi.com/v1/breeds/search?q=' + args[2]);
 
-request(url, (error, response, body) => {
+const fetchBreedDescription = function(url, callback) {
+url = 'https://api.thecatapi.com/v1/breeds/search?q=sib';
+  request(url, (error, response, body) => {
 
-  console.log('An error occurred:', error);
-  console.log('your response status:', response.statusCode);
-  let data = JSON.parse(body);
-  console.log(data);
-});
+    if (error) {
+      callback(null, error);
+      return;
+    }
 
+    if (response.statusCode !== 200) {
+      const msg = `Status Code ${response.statusCode} when fetching IP. Response: ${body}`;
+      callback(Error(msg), null);
+      return;
+    }
+  
+    const description = JSON.parse(body);
+    const breedInfo = description[0].description;
+    callback(null, breedInfo);
+
+  });
+};
+
+module.exports = { fetchBreedDescription };
